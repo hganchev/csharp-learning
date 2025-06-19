@@ -1,109 +1,239 @@
-// The Abstract Factory interface
-public interface IUIThemeFactory
-{
-    IButton CreateButton();
-    ILabel CreateLabel();
-}
+// Abstract Factory Pattern Example
+// This pattern provides an interface for creating families of related objects
+// without specifying their concrete classes.
 
-// The Concrete Factory classes
-public class LightThemeFactory : IUIThemeFactory
+namespace DesignPatterns.AbstractFactory
 {
-    public IButton CreateButton()
+    // The Abstract Factory interface
+    public interface IUIThemeFactory
     {
-        return new LightButton();
+        IButton CreateButton();
+        ILabel CreateLabel();
+        ITextBox CreateTextBox();
     }
 
-    public ILabel CreateLabel()
+    // The Concrete Factory classes
+    public class LightThemeFactory : IUIThemeFactory
     {
-        return new LightLabel();
-    }
-}
+        public IButton CreateButton()
+        {
+            return new LightButton();
+        }
 
-public class DarkThemeFactory : IUIThemeFactory
-{
-    public IButton CreateButton()
-    {
-        return new DarkButton();
-    }
+        public ILabel CreateLabel()
+        {
+            return new LightLabel();
+        }
 
-    public ILabel CreateLabel()
-    {
-        return new DarkLabel();
-    }
-}
-
-// The Abstract Product interfaces
-public interface IButton
-{
-    public string Color { get; set; }
-    void Paint();
-}
-
-public interface ILabel
-{
-    public string Color { get; set; }
-    void Paint();
-}
-
-// The Concrete Product classes
-public class LightButton : IButton
-{
-    public string Color { get; set; }
-
-    public void Paint()
-    {
-        Console.WriteLine("Light button painted");
-        Color = "Light";
-    }
-}
-
-public class LightLabel : ILabel
-{
-    public string Color { get; set; }
-    public void Paint()
-    {
-        Console.WriteLine("Light label painted");
-        Color = "Light";
-    }
-}
-
-public class DarkButton : IButton
-{
-    public string Color { get; set; }
-    public void Paint()
-    {
-        Console.WriteLine("Dark button painted");
-        Color = "Dark";
-    }
-}
-
-public class DarkLabel : ILabel
-{
-    public string Color { get; set; }
-    public void Paint()
-    {
-        Console.WriteLine("Dark label painted");
-        Color = "Dark";
-    }
-}
-
-// The Client class
-public class UIThemeClient
-{
-    private IUIThemeFactory _factory;
-    public IButton _button;
-    public ILabel _label;
-
-    public UIThemeClient(IUIThemeFactory factory)
-    {
-        _factory = factory;
-        _button = factory.CreateButton();
-        _label = factory.CreateLabel();
+        public ITextBox CreateTextBox()
+        {
+            return new LightTextBox();
+        }
     }
 
-    public void Paint()
+    public class DarkThemeFactory : IUIThemeFactory
     {
-        _button.Paint();
-        _label.Paint();
+        public IButton CreateButton()
+        {
+            return new DarkButton();
+        }
+
+        public ILabel CreateLabel()
+        {
+            return new DarkLabel();
+        }
+
+        public ITextBox CreateTextBox()
+        {
+            return new DarkTextBox();
+        }
+    }
+
+    // The Abstract Product interfaces
+    public interface IButton
+    {
+        string Color { get; set; }
+        void Paint();
+        void Click();
+    }
+
+    public interface ILabel
+    {
+        string Color { get; set; }
+        void Paint();
+        void SetText(string text);
+    }
+
+    public interface ITextBox
+    {
+        string Color { get; set; }
+        void Paint();
+        void SetText(string text);
+        string GetText();
+    }
+
+    // Light Theme Products
+    public class LightButton : IButton
+    {
+        public string Color { get; set; } = "Light Gray";
+
+        public void Paint()
+        {
+            Console.WriteLine($"Light theme button painted with {Color} background");
+        }
+
+        public void Click()
+        {
+            Console.WriteLine("Light button clicked with subtle animation");
+        }
+    }
+
+    public class LightLabel : ILabel
+    {
+        public string Color { get; set; } = "Black";
+        private string _text = "";
+
+        public void Paint()
+        {
+            Console.WriteLine($"Light theme label painted with {Color} text");
+        }
+
+        public void SetText(string text)
+        {
+            _text = text;
+            Console.WriteLine($"Light label text set to: {text}");
+        }
+    }
+
+    public class LightTextBox : ITextBox
+    {
+        public string Color { get; set; } = "White";
+        private string _text = "";
+
+        public void Paint()
+        {
+            Console.WriteLine($"Light theme textbox painted with {Color} background");
+        }
+
+        public void SetText(string text)
+        {
+            _text = text;
+            Console.WriteLine($"Light textbox text set to: {text}");
+        }
+
+        public string GetText()
+        {
+            return _text;
+        }
+    }
+
+    // Dark Theme Products
+    public class DarkButton : IButton
+    {
+        public string Color { get; set; } = "Dark Gray";
+
+        public void Paint()
+        {
+            Console.WriteLine($"Dark theme button painted with {Color} background");
+        }
+
+        public void Click()
+        {
+            Console.WriteLine("Dark button clicked with glow effect");
+        }
+    }
+
+    public class DarkLabel : ILabel
+    {
+        public string Color { get; set; } = "Light Gray";
+        private string _text = "";
+
+        public void Paint()
+        {
+            Console.WriteLine($"Dark theme label painted with {Color} text");
+        }
+
+        public void SetText(string text)
+        {
+            _text = text;
+            Console.WriteLine($"Dark label text set to: {text}");
+        }
+    }
+
+    public class DarkTextBox : ITextBox
+    {
+        public string Color { get; set; } = "Black";
+        private string _text = "";
+
+        public void Paint()
+        {
+            Console.WriteLine($"Dark theme textbox painted with {Color} background");
+        }
+
+        public void SetText(string text)
+        {
+            _text = text;
+            Console.WriteLine($"Dark textbox text set to: {text}");
+        }
+
+        public string GetText()
+        {
+            return _text;
+        }
+    }
+
+    // The Client class
+    public class UIThemeClient
+    {
+        private readonly IUIThemeFactory _factory;
+        public IButton Button { get; private set; }
+        public ILabel Label { get; private set; }
+        public ITextBox TextBox { get; private set; }
+
+        public UIThemeClient(IUIThemeFactory factory)
+        {
+            _factory = factory;
+            Button = factory.CreateButton();
+            Label = factory.CreateLabel();
+            TextBox = factory.CreateTextBox();
+        }
+
+        public void Paint()
+        {
+            Console.WriteLine("Painting UI components:");
+            Button.Paint();
+            Label.Paint();
+            TextBox.Paint();
+        }
+
+        public void InteractWithUI()
+        {
+            Button.Click();
+            Label.SetText("Welcome to the application!");
+            TextBox.SetText("Type your message here...");
+        }
+    }
+
+    // Demo class
+    public class AbstractFactoryPatternDemo
+    {
+        public static void RunDemo()
+        {
+            Console.WriteLine("=== Abstract Factory Pattern Demo ===");
+
+            // Light Theme
+            Console.WriteLine("\n--- Light Theme ---");
+            var lightThemeFactory = new LightThemeFactory();
+            var lightClient = new UIThemeClient(lightThemeFactory);
+            lightClient.Paint();
+            lightClient.InteractWithUI();
+
+            // Dark Theme
+            Console.WriteLine("\n--- Dark Theme ---");
+            var darkThemeFactory = new DarkThemeFactory();
+            var darkClient = new UIThemeClient(darkThemeFactory);
+            darkClient.Paint();
+            darkClient.InteractWithUI();
+        }
     }
 }

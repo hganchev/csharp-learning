@@ -1,43 +1,61 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DesignPatterns.Factory;
 
 [TestClass]
 public class UnitTests_Factory
 {
     [TestMethod]
-    public void TestTypeAProcessor()
+    public void TestCarCreation()
     {
-        IFactory factory = new Factory();
-        ITypeProcessor typeProcessor = factory.CreateTypeProcessor("A");
+        // Act
+        IVehicle vehicle = VehicleFactory.CreateVehicle("car");
 
-        Assert.IsInstanceOfType(typeProcessor, typeof(TypeAProcessor));
-
-        typeProcessor.Process();
-
-        string expectedOutput = "Process for type A";
-        string actualOutput = typeProcessor.Output;
-        Assert.AreEqual(expectedOutput, actualOutput);
+        // Assert
+        Assert.IsInstanceOfType(vehicle, typeof(Car));
+        Assert.AreEqual("Car", vehicle.Type);
     }
 
     [TestMethod]
-    public void TestTypeBProcessor()
+    public void TestMotorcycleCreation()
     {
-        IFactory factory = new Factory();
-        ITypeProcessor typeProcessor = factory.CreateTypeProcessor("B");
+        // Act
+        IVehicle vehicle = VehicleFactory.CreateVehicle("motorcycle");
 
-        Assert.IsInstanceOfType(typeProcessor, typeof(TypeBProcessor));
+        // Assert
+        Assert.IsInstanceOfType(vehicle, typeof(Motorcycle));
+        Assert.AreEqual("Motorcycle", vehicle.Type);
+    }
 
-        typeProcessor.Process();
+    [TestMethod]
+    public void TestTruckCreation()
+    {
+        // Act
+        IVehicle vehicle = VehicleFactory.CreateVehicle("truck");
 
-        string expectedOutput = "Process for type B";
-        string actualOutput = typeProcessor.Output;
-        Assert.AreEqual(expectedOutput, actualOutput);
+        // Assert
+        Assert.IsInstanceOfType(vehicle, typeof(Truck));
+        Assert.AreEqual("Truck", vehicle.Type);
     }
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
-    public void TestInvalidType()
+    public void TestInvalidVehicleType()
     {
-        IFactory factory = new Factory();
-        ITypeProcessor typeProcessor = factory.CreateTypeProcessor("C");
+        // Act & Assert
+        VehicleFactory.CreateVehicle("plane");
+    }
+
+    [TestMethod]
+    public void TestVehicleOperations()
+    {
+        // Arrange
+        var car = VehicleFactory.CreateVehicle("car");
+        
+        // Act & Assert (no exceptions should be thrown)
+        car.Start();
+        car.GetInfo();
+        car.Stop();
+        
+        Assert.AreEqual("Car", car.Type);
     }
 }
