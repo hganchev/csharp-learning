@@ -1,17 +1,39 @@
 ﻿using System;
+
 namespace SOLID
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var mySRP = new SRP();  // Single Responcible Principe
-            var myOCP = new OCP();  // Open Closed Principle 
-            var myLSP = new LSP();  // Liskov Substitution Principle
-            var myISP = new ISP();  // Interface Segregation Principle
-            var myDIP = new DIP();  // Dependency Inversion Principle
+            Console.WriteLine("======================================");
+            Console.WriteLine("       SOLID PRINCIPLES EXAMPLES     ");
+            Console.WriteLine("======================================\n");
 
-            // ============= Dependency Injection Example =================================================================
+            // Single Responsibility Principle
+            var srp = new SRP();
+            Console.WriteLine("\n" + new string('=', 60) + "\n");
+
+            // Open/Closed Principle
+            var ocp = new OCP();
+            Console.WriteLine("\n" + new string('=', 60) + "\n");
+
+            // Liskov Substitution Principle
+            var lsp = new LSP();
+            Console.WriteLine("\n" + new string('=', 60) + "\n");
+
+            // Interface Segregation Principle
+            var isp = new ISP();
+            Console.WriteLine("\n" + new string('=', 60) + "\n");
+
+            // Dependency Inversion Principle
+            var dip = new DIP();
+            Console.WriteLine("\n" + new string('=', 60) + "\n");
+
+            // ============= Original Dependency Injection Example =================================================================
+            Console.WriteLine("=== Additional Dependency Injection Example ===");
+            Console.WriteLine("This example shows how dependency injection works in practice:\n");
+            
             // In this example, we have an interface called IDatabase that defines a single method called Save(string data).
             // We also have a class called SqlDatabase that implements this interface and provides an actual implementation for the Save(string data) 
             // method that saves data to a SQL database.
@@ -26,9 +48,14 @@ namespace SOLID
             // This is one of the benefits of dependency injection, it allows to change the implementation of a dependency without
             // modifying the code of the class that depends on it, making the code more flexible and maintainable.
             // =============================================================================================================
-            var SqlDB = new SqlDatabase();
-            var Logger = new Logger(SqlDB);
-            Logger.Log("Hi");
+            
+            var sqlDb = new SqlDatabase();
+            var logger = new Logger(sqlDb);
+            logger.Log("Application started successfully!");
+
+            Console.WriteLine("\n======================================");
+            Console.WriteLine("    All SOLID Principles Demonstrated");
+            Console.WriteLine("======================================");
         }
     }
 }
