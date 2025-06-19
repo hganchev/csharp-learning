@@ -1,105 +1,216 @@
-namespace Functional
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace app.Functional
 {
-    class Functions
+    /// <summary>
+    /// Demonstrates Functional Programming principles:
+    /// - First-class functions: Functions can be assigned to variables and passed as parameters
+    /// - Pure functions: Functions with no side effects that always return same output for same input
+    /// - Immutability: Data structures that don't change after creation
+    /// - Higher-order functions: Functions that take other functions as parameters
+    /// - Function composition: Building complex operations by combining simple functions
+    /// </summary>
+    public static class FunctionalExamples
     {
-        // Function objects must have some type. In C#, we can define either generic functions or strongly typed delegates.
-        // Delegates might be recognized as a definition of function prototypes where the method signature is defined.
-        // "Instance objects" of delegate types are pointers to functions (static methods, class methods) that have a
-        // prototype that matches the delegate definition. An example of a delegate definition is shown in the following code:
-
-        public delegate double MyFunc(double x);
-
-        public Functions()
+        // Delegate definitions for function types
+        public delegate T UnaryFunction<T>(T input);
+        public delegate TResult BinaryFunction<T1, T2, TResult>(T1 input1, T2 input2);
+        
+        // Pure functions - no side effects, same input always produces same output
+        public static int Square(int x) => x * x;
+        public static int Add(int a, int b) => a + b;
+        public static int Multiply(int a, int b) => a * b;
+        public static bool IsEven(int x) => x % 2 == 0;
+        public static bool IsPositive(int x) => x > 0;
+        
+        // Higher-order function - takes another function as parameter
+        public static IEnumerable<TResult> Map<T, TResult>(IEnumerable<T> source, Func<T, TResult> selector)
         {
-            MyFunc f = Math.Sin;
-            double y = f(4); //y=sin(4)
-            Console.WriteLine(y);
-            f = Math.Exp;
-            y = f(4);        //y=exp(4) 
-            Console.WriteLine(y);
-
-            // Once you define function objects, you can assign them other existing functions as shown in the previous listings or other function 
-            // variables. Also, you can pass them to other functions as standard variables. 
-            // If you want to assign a value to a function, you have the following possibilities:
-            // Point the function object to reference some existing method by name.
-            // Create an anonymous function using the lambda expression or delegate and assign it to the function object.
-            // Create a function expression where you can add or subtract a function and assign that kind of multicast 
-            // delegate to the function object (described in the next section).
-            Func<double, double> f1 = Math.Sin;
-            Func<double, double> f2 = Math.Exp;
-            double y1 = f1(6) + f2(10); //y1=sin(6) + exp(10)
-            Console.WriteLine(y1);
-            f2 = f1;
-            y1 = f2(19);                //y1=sin(19) 
-            Console.WriteLine(y1);
-
-            //  Lambda expressions
-            // Lambda expression must have part for definition of argument names - 
-            // if lambda expression does not have parameters, empty brackets () should be placed. 
-            // If there is only one parameter in the list, brackets are not needed. After => sign, 
-            // you need to put an expression that will be returned.
-            Func<double, double> f3 = delegate(double x) { return 3*x+1; };
-            double y2 = f3(4); //y2=13    
-            Console.WriteLine(y2);         
-            f3 = x => 3*x+1;  // lambda expression of syntax  - parameters => return-expression
-            y2= f3(5);        //y2=16 
-            Console.WriteLine(y2);
-
-            // Exaples of lambda expressions
-            var f4 = () => 3;
-            Console.WriteLine(f4());   
-            var f5= () => DateTime.Now;
-            Console.WriteLine(f5());   
-            Func<int, int, int> f6 = (x, y) => x+y;
-            Console.WriteLine(f6(1,2));   
-
-            //The lambda function is defined using the => operator, which separates the input parameters from the function body. In this case, the input parameter is x, and the function body is x * x, which calculates the square of x.
-            // Lambda functions can be used in a variety of ways, including:
-            // - Anonymous methods: Lambda functions can be used as anonymous methods, which are methods that do not have a name. 
-            // They are useful when a method is only needed for a short period of time or when a method is only used once.
-            // - Event handlers: Lambda functions can be used as event handlers, which are methods that are called when a specific event occurs. 
-            // They can be used to respond to user input, network events, and other types of system events.
-            // - LINQ queries: Lambda functions can be used as the argument of LINQ (Language Integrated Query) methods such as Where, Select, OrderBy, and others,
-            //  which allows to filter, transform, and sort collections of data in an elegant and expressive way.
-            // - Delegates: Lambda functions can be assigned to variables of a delegate type, which allows them to be passed as arguments to methods and used as callbacks. 
-            // This is useful in situations where a method needs to be executed at a later time or in a different context.
-            // - Task: Lambda functions can be used to create new Tasks, which allows to execute code asynchronously and improve the performance of the application.
-
-            // attach methods to functions
-            Func<string, int, string[]> extractMethod = ExtractWords;
-            string title = "The Scarlet Letter";
-            // Use delegate instance to call ExtractWords method and display result
-            foreach (string word in extractMethod(title, 5))
-            Console.WriteLine(word);
-
-            // Actions 
-            Action<string> action = Console.WriteLine;
-            Action<string> hello = Hi;
-            Action<string> goodbye = Bye;
-
-            action += Hi; //Operator += is used for attaching new functions that will be called by the multicast delegate
-            action += (x) => { Console.WriteLine("  Greating {0} from lambda expression", x); };
-
-            action("First");
+            foreach (var item in source)
+                yield return selector(item);
         }
-
-        private static string[] ExtractWords(string phrase, int limit)
+        
+        // Function composition - combining simple functions to create complex ones
+        public static Func<T, TResult> Compose<T, TIntermediate, TResult>(
+            Func<T, TIntermediate> first, 
+            Func<TIntermediate, TResult> second)
         {
-            char[] delimiters = new char[] {' '};
-            if (limit > 0)
-                return phrase.Split(delimiters, limit);
-            else
-                return phrase.Split(delimiters);
+            return input => second(first(input));
         }
-
-        static void Hi(string s)
+        
+        // Currying - transforming a function with multiple parameters into a series of functions
+        public static Func<int, int> AddCurried(int x) => y => x + y;
+        public static Func<int, Func<int, int>> MultiplyCurried = x => y => x * y;
+        
+        // Partial application - fixing some arguments of a function
+        public static Func<int, int> CreateAdder(int valueToAdd) => x => x + valueToAdd;
+        public static Func<int, bool> CreateGreaterThanChecker(int threshold) => x => x > threshold;
+        
+        // Recursive functions - functional style for repetitive operations
+        public static int Factorial(int n) => n <= 1 ? 1 : n * Factorial(n - 1);
+        
+        public static int Fibonacci(int n) => n switch
         {
-            System.Console.WriteLine("  Hi, {0}!", s);
+            0 => 0,
+            1 => 1,
+            _ => Fibonacci(n - 1) + Fibonacci(n - 2)
+        };
+        
+        // Memoization - caching function results for optimization
+        private static readonly Dictionary<int, int> FibonacciCache = new();
+        
+        public static int FibonacciMemoized(int n)
+        {
+            if (FibonacciCache.TryGetValue(n, out int cached))
+                return cached;
+                
+            int result = n switch
+            {
+                0 => 0,
+                1 => 1,
+                _ => FibonacciMemoized(n - 1) + FibonacciMemoized(n - 2)
+            };
+            
+            FibonacciCache[n] = result;
+            return result;
         }
-
-        static void Bye(string s)
+        
+        // Immutable data structures example
+        public static IEnumerable<T> AppendToImmutableList<T>(IEnumerable<T> original, T newItem)
         {
-            System.Console.WriteLine("  Bye, {0}!", s);
+            return original.Concat(new[] { newItem });
+        }
+        
+        // Function pipeline - chaining operations together
+        public static IEnumerable<TResult> ProcessNumbers<TResult>(
+            IEnumerable<int> numbers,
+            Func<int, bool> filter,
+            Func<int, TResult> transform)
+        {
+            return numbers
+                .Where(filter)
+                .Select(transform);
+        }
+        
+        // Monadic operations (Option/Maybe pattern)
+        public static Option<TResult> Map<T, TResult>(this Option<T> option, Func<T, TResult> func)
+        {
+            return option.HasValue ? Option<TResult>.Some(func(option.Value)) : Option<TResult>.None();
+        }
+        
+        public static Option<TResult> FlatMap<T, TResult>(this Option<T> option, Func<T, Option<TResult>> func)
+        {
+            return option.HasValue ? func(option.Value) : Option<TResult>.None();
+        }
+        
+        public static void DemonstrateBasicConcepts()
+        {
+            Console.WriteLine("=== Basic Functional Concepts ===");
+            
+            // First-class functions
+            Func<int, int> squareFunc = Square;
+            Func<int, int> addFive = CreateAdder(5);
+            
+            Console.WriteLine($"Square of 4: {squareFunc(4)}");
+            Console.WriteLine($"Add 5 to 3: {addFive(3)}");
+            
+            // Function composition
+            var squareAndAddFive = Compose<int, int, int>(Square, addFive);
+            Console.WriteLine($"Square 3 then add 5: {squareAndAddFive(3)}");
+            
+            // Higher-order functions with LINQ
+            var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            
+            var evenSquares = numbers
+                .Where(IsEven)
+                .Select(Square)
+                .ToList();
+            
+            Console.WriteLine($"Even squares: [{string.Join(", ", evenSquares)}]");
+            
+            // Currying example
+            var add10 = AddCurried(10);
+            var multiply3 = MultiplyCurried(3);
+            
+            Console.WriteLine($"Add 10 to 5: {add10(5)}");
+            Console.WriteLine($"Multiply 3 by 4: {multiply3(4)}");
+            
+            // Recursive functions
+            Console.WriteLine($"Factorial of 5: {Factorial(5)}");
+            Console.WriteLine($"Fibonacci of 10: {Fibonacci(10)}");
+            Console.WriteLine($"Memoized Fibonacci of 10: {FibonacciMemoized(10)}");
         }
     }
+    
+    // Option/Maybe monad implementation for safer null handling
+    public struct Option<T>
+    {
+        private readonly T _value;
+        public bool HasValue { get; }
+        public T Value => HasValue ? _value : throw new InvalidOperationException("No value present");
+        
+        private Option(T value, bool hasValue)
+        {
+            _value = value;
+            HasValue = hasValue;
+        }
+        
+        public static Option<T> Some(T value) => new(value, true);
+        public static Option<T> None() => new(default!, false);
+        
+        public TResult Match<TResult>(Func<T, TResult> onSome, Func<TResult> onNone)
+        {
+            return HasValue ? onSome(_value) : onNone();
+        }
+        
+        public override string ToString() => HasValue ? $"Some({_value})" : "None";
+    }
+    
+    // Functional data processing example
+    public class FunctionalDataProcessor
+    {
+        // Sample data
+        private static readonly List<Person> People = new()
+        {
+            new("Alice", 30, "Engineering"),
+            new("Bob", 25, "Marketing"),
+            new("Charlie", 35, "Engineering"),
+            new("Diana", 28, "Sales"),
+            new("Eve", 32, "Engineering")
+        };
+        
+        public static void DemonstrateDataProcessing()
+        {
+            Console.WriteLine("\n=== Functional Data Processing ===");
+            
+            // Functional pipeline for data processing
+            var result = People
+                .Where(p => p.Department == "Engineering")
+                .Select(p => new { p.Name, p.Age })
+                .OrderBy(p => p.Age)
+                .ToList();
+            
+            Console.WriteLine("Engineers sorted by age:");
+            result.ForEach(p => Console.WriteLine($"  {p.Name}: {p.Age}"));
+            
+            // Using higher-order functions
+            var averageAge = People
+                .Where(p => p.Age > 25)
+                .Average(p => p.Age);
+            
+            Console.WriteLine($"Average age of people over 25: {averageAge:F1}");
+            
+            // Demonstrating immutability
+            var originalList = new List<int> { 1, 2, 3 };
+            var newList = FunctionalExamples.AppendToImmutableList(originalList, 4);
+            
+            Console.WriteLine($"Original: [{string.Join(", ", originalList)}]");
+            Console.WriteLine($"New: [{string.Join(", ", newList)}]");
+        }
+    }
+    
+    // Record type for immutable data
+    public record Person(string Name, int Age, string Department);
 }
